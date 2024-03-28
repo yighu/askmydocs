@@ -42,7 +42,7 @@ def showStore():
 def getRetriver():
     db = FAISS.load_local(FASIS_INDEX, underlying_embeddings)
     return db.as_retriever()
-db = FAISS.load_local(FASIS_INDEX, underlying_embeddings)
+db = FAISS.load_local(FASIS_INDEX, underlying_embeddings, allow_dangerous_deserialization=True)
 def findDocs(question):
 #    db = FAISS.load_local(FASIS_INDEX, underlying_embeddings)
     docs= db.similarity_search_with_score(question)
@@ -79,5 +79,6 @@ def createResponse(query):
     '''
 
 
+loadAndCache()
 print(createResponse("如何教育孩子?"))
 
