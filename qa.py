@@ -23,14 +23,15 @@ from langchain.prompts import ChatPromptTemplate
 os.environ["OPENAI_API_KEY"]=constants.APIKEY
 underlying_embeddings = OpenAIEmbeddings()
 
-store = LocalFileStore("./cache/")
-FASIS_INDEX="fass_index"
+store = LocalFileStore(constants.CACHE)
+FASIS_INDEX=constants.FASIS_INDEX
+DOCS_FOLDER=constants.DOCS_FOLDER
 cached_embedder = CacheBackedEmbeddings.from_bytes_store(
     underlying_embeddings, store, namespace=underlying_embeddings.model
 )
 
 def loadAndCache():
-    loader = PyPDFDirectoryLoader("../cciusa/books/")
+    loader = PyPDFDirectoryLoader(DOCS_FOLDER)
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=500, add_start_index=True)
     documents = text_splitter.split_documents(loader.load())
     db = FAISS.from_documents(documents, cached_embedder)
@@ -44,7 +45,7 @@ def getRetriver():
     return db.as_retriever()
 db = FAISS.load_local(FASIS_INDEX, underlying_embeddings, allow_dangerous_deserialization=True)
 def findDocs(question):
-#    db = FAISS.load_local(FASIS_INDEX, underlying_embeddings)
+    #db = FAISS.load_local(FASIS_INDEX, underlying_embeddings,allow_dangerous_deserialization=True)
     docs= db.similarity_search_with_score(question)
     return docs
     '''
@@ -79,6 +80,6 @@ def createResponse(query):
     '''
 
 
-loadAndCache()
+#loadAndCache()
 print(createResponse("如何教育孩子?"))
 
